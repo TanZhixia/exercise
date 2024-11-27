@@ -1,64 +1,74 @@
 #include <iostream>
 using namespace std;
-int n, p;
-int _p[3000][2];
-int r;
-int _r[8000][2];
-int all;
-bool flag;
+int n;
+int p, r;
+int _p[3001];       // okList
+int _r[3001][3001]; // x -> y: _r[x][y] = 1 else _r[y][x] = 0;
+int _money[3001];
+int allMoney;
 void Read() {
     cin >> n;
     cin >> p;
-    for (int i = 0; i < p; i ++)
-        cin >> _p[i][0] >> _p[i][1];
+    for (int i = 1; i <= p; i ++) {
+        int people, money;
+        cin >> people >> money;
+        _money[people] = money;
+    }
     cin >> r;
-    for (int i = 0; i < r; i ++)
-        cin >> _r[i][0] >> _r[i][1];
+    for (int i = 1; i <= r; i ++) {
+        int x, y;
+        cin >> x >> y;
+        _r[x][y] = 1;
+    }
 }
-void core() {
-    bool _n[3000];
-    for (int i = 1; i <= n; i ++)
-        _n[i - 1] = false;
-    for (int i = 0; i < p; i ++) {
-        all += _p[i][1];
-        _n[_p[i][0] - 1] = true;
-    }
-    for (int i = 0; i < r; i ++) {
-        if (_n[_r[i][0] - 1]) {
-            if (!(_n[_r[i][1] - 1]))
-                _n[_r[i][1] - 1] = true;
-            else {
-                int index = _r[i][1];
-                for (int j = index - 1; j < p; j ++) {
-                    if (_p[j][0] == index)
-                        all -= _p[j][1]; // not!
-                }
-            }
-        }
-    }
-    flag = true;
-    for (int i = 0; i < n; i ++)
-        if (!_n[i]) {
-            flag = false;
+int coreExit() {
+    int flag = 1;
+    for (int i = 1; i <= n; i ++) {
+        if (_money[i] == 0) {
+            flag = 0;
             break;
         }
-    if (flag) {
-        cout << "YES" << endl;
-        cout << all << endl;
-    } else {
-        cout << "NO" << endl;
-        for (int i = 0; i < n; i ++)
-            if (!_n[i]) {
-                cout << i + 1 << endl;
-                break;
-            }
     }
+    return flag;
+}
+int isNone(int n) {
+    for (int i = 1; i <= n; i ++)
+        if (_r[n][i] == 1)
+            return false;
+    return true;
+}
+int whatNumber(int index) {
+    if (isNone(index))
+        return 0;
+    int sum = 0;
+    for (int i = 1; i <= n; i ++)
+        if (_r[index][i] == 1)
+            sum += whatNumber(i) + 1;
+    return sum;
 }
 void Core() {
-    core();
+    while (coreExit()) {
+        double list[3001];
+        int maxIndex = 0;
+        int maxValue = 0;
+        for (int i = 1; i <= n; i ++) {
+            if (_p[i] == 1) continue;
+            list[i] = (double) (whatNumber(i) + 1) / _money[i] ;
+            if (list[i] > maxValue) {
+                maxIndex = i;
+                maxValue = list[i];
+            }
+        }
+        _p[maxIndex] = 1;
+        allMoney += _money[maxIndex];
+    }
+}
+void Write() {
+    cout << allMoney;
 }
 int main() {
     Read();
     Core();
+    Write();
     return 0;
 }

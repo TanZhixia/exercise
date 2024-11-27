@@ -11,6 +11,7 @@
         "iosfwd": "cpp",
         "limits": "cpp",
         "streambuf": "cpp",
-        "iomanip": "cpp"
+        "iomanip": "cpp",
+        "stack": "cpp"
     }
 }
